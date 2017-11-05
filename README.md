@@ -1,7 +1,6 @@
 #### Simple chat Based on simplified Blockchain with persistent storage 
 
 ##### Clean chain:
-
 ```bash
 rm ./blockchain-js-chat$/blockchain.js
 ```
@@ -10,8 +9,9 @@ rm ./blockchain-js-chat$/blockchain.js
 ```javascript
 node ./blockchain.js
 ```
+
 ##### Navigate:
-In Browser: /path/to/blockchain-js-chat$/cli.html
+In Browser: /path/to/blockchain-js-chat/cli.html
 
 
 ##### blockchain.data - sample structure:
