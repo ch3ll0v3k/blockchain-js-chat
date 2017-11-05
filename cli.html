@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html labg="en-US">
+<head>
+
+    <title>BlockChain - Cli</title>
+    <meta charset="utf-8"/>
+
+    <script type="text/javascript" src="./json2.js"></script>
+
+    <script type="text/javascript">
+        window.addEventListener('load', function(){
+
+            (function(){
+    
+                // ----------------------------------------------------
+                var chatBody = getByID('chat-side-body-wrapper');
+                var input = getByID('input');
+
+                input.addEventListener('keyup', function(event){
+
+                    if( event.keyCode == 13 ){
+
+                        var data = this.value.trim();
+                        this.value = '';
+
+                        socketSend({
+                            method : 'onNewChatMessage',
+                            msg : data,
+
+                        });
+
+                    }
+
+                });
+
+                // ----------------------------------------------------
+                var socket = new WebSocket( 'ws://127.0.0.1:6001' );
+
+                socket.onopen = function (e) {
+                    console.log( 'socket.onopen: [true]' );
+
+                    socketSend({
+                        method : 'onChatInit',
+
+                    });
+
+                };
+
+                socket.onmessage = function (e) {
+
+                    // console.log( 'onmessage: origin :', e.origin );
+                    console.log( 'onmessage: data   :', e.data );
+
+                    var json_t = JSON.parse( e.data );
+                    console.log( 'json_t:', json_t );
+
+                    if( typeof json_t.method !== "undefined" ){
+                        if( typeof Chat[ json_t.method ] === "function" ){
+                            Chat[ json_t.method ]( json_t );
+
+                        }else{ console.warn( ' ['+json_t.method+'] => IS NOT Chat method' ); }
+                    }else{ console.warn( 'NO method param available' ); }
+
+                };
+
+                socket.onclose = function (e) {
+                    console.log( 'onclose: wasClean:', e.wasClean );
+                    console.log( 'onclose: code:', e.code );
+                    console.log( 'onclose: reason:', e.reason );
+
+                };
+
+                socket.onerror = function (e) {
+                    console.log( 'onerror: ', e );
+                };
+
+                // ----------------------------------------------------
+                function getByID( id ){ return document.getElementById( id ); }
+
+                function socketSend( data ) {
+
+                    // console.info( 'socket.readyState: ['+socket.readyState+']' );
+                    // console.info( 'WebSocket.OPEN: ['+WebSocket.OPEN+']' );
+                    // console.info('send: data:', data);
+                    if (socket.readyState != WebSocket.OPEN){
+                        console.info( 'SOCKET IS NOT AVAILABLE' );
+                        return;
+                    }
+
+                    socket.send( typeof data === "object" ? JSON.stringify(data) : data );
+
+                }
+
+                // [CUSTOM EVENTS]
+
+                var Chat = {
+
+                    onNewChatMessage : function ( json_t ){
+
+                        chatBody.insertAdjacentHTML('beforeend', ''
+                            +'<div class="chat-msg-wrapper">'
+                            +'    <div class="chat-msg-date"> '+json_t.date+' </div>'
+                            +'    <div class="chat-msg-author"> '+json_t.author+' </div>'
+                            +'    <div class="chat-msg-data">'
+                            +( json_t.msg )
+                            +'    </div>'
+                            +'</div>'
+                        );
+
+                        this.scrollUp();
+
+                    },
+                    onNewChatClient : function ( json_t ){
+                        console.info( 'onNewChatClient: ', json_t );                    
+                    },
+
+
+
+
+
+                    scrollUp : function(){
+                        setTimeout( function(){
+                            try{ chatBody.scrollTo( 0, chatBody.scrollHeight ); }catch(e){ } }, 100);
+                        setTimeout( function(){
+                            try{ chatBody.scrollTop = chatBody.scrollHeight; }catch(e){ } }, 100);
+
+                    }
+
+                }
+
+                // ----------------------------------------------------
+
+            })();
+
+        });
+
+    </script>
+
+</head>
+<body>
+
+<!-- ========================================================== -->
+<style type="text/css">
+
+body{
+    background: #F7F7F7;
+}
+
+#wrapper{
+    width: 900px; margin: 10px auto; box-sizing: border-box; box-shadow: 0 0 2px #777; padding: 10px;
+}
+
+#chat-wrapper{
+    box-sizing: border-box; padding: 0; background: #fff;
+}
+
+#chat-side-bar-wrapper{
+    vertical-align: top;
+    box-shadow: 0 0 2px #999; box-sizing: border-box; padding: 5px;
+    width: 220px; display: inline-block; height: 300px;
+}
+
+#chat-side-body-wrapper{
+    vertical-align: top;
+    box-shadow: 0 0 2px #999; box-sizing: border-box; padding: 5px;
+    width: 645px; display: inline-block; height: 300px;
+    margin-left: 10px; overflow-y: scroll;
+}
+
+#chat-side-footer-wrapper{
+    box-shadow: 0 0 2px #999; box-sizing: border-box; padding: 5px;
+    width: 100%; display: inline-block; margin-top: 10px;
+}
+
+#input{
+    width: 100%; box-sizing: border-box; padding: 5px;
+}
+
+
+.chat-msg-wrapper{
+    box-sizing: border-box; padding: 5px; background: #f7f7f7; font-size: 14px; 
+    margin-bottom: 10px;
+}
+
+.chat-msg-date, .chat-msg-author{
+    display: inline-block; vertical-align: top; box-sizing: border-box; padding: 5px; background: #333; color: #fff;
+}
+
+.chat-msg-data{
+    display: block; box-sizing: border-box; padding: 5px; 
+
+}
+
+</style>
+
+<div id="wrapper">
+
+    <div id="chat-wrapper">
+
+        <div id="chat-side-bar-wrapper"></div>
+        <div id="chat-side-body-wrapper">
+
+            <!--
+            <div class="chat-msg-wrapper">
+                <div class="chat-msg-date"> 23-23-23 23:23 </div>
+                <div class="chat-msg-author"> Author </div>
+                <div class="chat-msg-data">
+                    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+                    tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+                </div>
+            </div>
+            -->
+
+        </div>
+        <div id="chat-side-footer-wrapper">
+            <input type="text" id="input"/>
+        </div>
+        
+    </div>
+    
+</div>
+
+<!-- ========================================================== -->
+</body>
+</html>
