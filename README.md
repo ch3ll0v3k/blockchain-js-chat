@@ -1,5 +1,31 @@
 #### Simple chat Based on simplified Blockchain with persistent storage 
 
+##### DEV-ENV:
+
+```bash
+$ lsb_release  -a
+No LSB modules are available.
+Distributor     ID: Debian
+Description:    Debian GNU/Linux 8.9 (jessie)
+Release:        8.9
+Codename:       jessie
+```
+```bash
+$ node -v
+>>> v8.4.0
+```
+```bash
+$ npm -v
+>>> 5.3.0
+```
+
+##### Init:
+```bash
+cd ./blockchain-js-chat$/
+
+npm install
+```
+
 ##### Clean chain:
 ```bash
 rm ./blockchain-js-chat$/blockchain.js
